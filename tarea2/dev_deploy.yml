@@ -1,0 +1,64 @@
+---
+- name: Desplegar Apache y vhost en servidores
+  hosts: servidores
+  become: true
+
+  tasks:
+
+    - name: Instalar el paquete httpd
+      ansible.builtin.yum:
+        name: httpd
+        state: present
+
+    - name: Iniciar y habilitar httpd
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: true
+
+    - name: Desplegar vhost.conf
+      ansible.builtin.template:
+        src: templates/vhost.conf.j2
+        dest: /etc/httpd/conf.d/vhost.conf
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart httpd
+
+    - name: Crear directorio DocumentRoot
+      ansible.builtin.file:
+        path: "/var/www/vhosts/{{ inventory_hostname }}"
+        state: directory
+        owner: apache
+        group: apache
+        mode: '0755'
+
+    - name: Copiar index.html al DocumentRoot
+      ansible.builtin.copy:
+        src: files/index.html
+        dest: "/var/www/vhosts/{{ inventory_hostname }}/index.html"
+        owner: apache
+        group: apache
+        mode: '0644'
+
+    - name: Permitir HTTP en el firewall
+      ansible.posix.firewalld:
+        service: http
+        permanent: true
+        state: enabled
+        immediate: true
+
+    - name: Permitir HTTPS en el firewall
+      ansible.posix.firewalld:
+        service: https
+        permanent: true
+        state: enabled
+        immediate: true
+
+  handlers:
+    - name: Restart httpd
+      ansible.builtin.service:
+        name: httpd
+        state: restarted
+
+

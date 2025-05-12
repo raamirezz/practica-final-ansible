@@ -1,0 +1,30 @@
+---
+- name: Crear usuarios en los servidores
+  hosts: servidores
+  become: yes
+  vars:
+    packages:
+      - memcached
+      - mariadb-server
+
+  tasks:
+    - name: Crear usuario carlos
+      user:
+        name: carlos
+        state: present
+
+    - name: Crear usuario marta
+      user:
+        name: marta
+        state: present
+
+    - name: Instalar los paquetes necesarios
+      package:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages }}"
+    - name: Instalar redis si el swap es mayor a 20MB
+      package:
+        name: redis
+        state: present
+      when: ansible_memtotal_mb > 20

@@ -1,0 +1,32 @@
+---
+- name: Test web content
+  hosts: localhost
+  become: true
+
+  tasks:
+
+    - block:
+        - name: Retrieve web content
+          ansible.builtin.uri:
+            url: http://vagrant1
+            return_content: true
+          register: content
+
+        - name: Show retrieved content
+          ansible.builtin.debug:
+            msg: "{{ content.content }}"
+
+      rescue:
+        - name: Write to error file
+          ansible.builtin.copy:
+            dest: "./error.log"
+            content: "{{ content.content | default('No content retrieved') }}"
+            mode: '0644'
+
+      always:
+        - name: Ensure we report status
+          ansible.builtin.debug:
+            msg: >
+              Web content retrieval
+              {{ 'succeeded' if content is defined and content.status == 200 else 'failed – see error.log' }}
+
