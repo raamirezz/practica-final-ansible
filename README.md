@@ -6,7 +6,7 @@ Este repositorio contiene los playbooks y los ficheros de configuración usados 
 
 - Ansible 2.10+ instalado.
 - Vagrant y dos máquinas virtuales ('vagrant1' y 'vagrant2') con CentOS.
-- En '/etc/hosts' de la máquina host se debe incluir '192.168.10.20 vagrant1' y '192.168.10.30'
+- En '/etc/hosts' de la máquina host se debe incluir '192.168.10.20 vagrant1' y '192.168.10.30 vagrant2'
 
 ## Tarea 1
 
